@@ -1,0 +1,5 @@
+0a97f51811f88e1dfdc24702e7893e53
+ENV:PYTHON_BIN_PATH /opt/rh/python27/root/usr/bin/python
+ENV:PYTHON_LIB_PATH /opt/rh/python27/root/usr/lib/python2.7/site-packages
+ENV:TF_PYTHON_CONFIG_REPO \0
+FILE://third_party/py:BUILD.tpl 56a480b98edca5e4f2ba682a020f4a42

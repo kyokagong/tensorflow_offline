@@ -1,0 +1,69 @@
+language: python
+dist: trusty
+sudo: false
+
+cache:
+  pip: true
+  directories:
+    - $HOME/.ccache
+
+python:
+  - 2.7
+  - 3.6
+  - 2.6
+  - 3.3
+  - 3.4
+  - 3.5
+  - 3.6-dev
+  - 3.7-dev
+  - pypy
+  - pypy3
+
+env:
+  global:
+    - USE_CCACHE=1
+    - CCACHE_SLOPPINESS=pch_defines,time_macros
+    - CCACHE_COMPRESS=1
+    - CCACHE_MAXSIZE=100M
+    - PATH="/usr/lib/ccache:$PATH"
+  matrix:
+    - BACKEND=c
+    - BACKEND=cpp
+
+branches:
+  only:
+    - master
+    - release
+
+install:
+  - python -c 'import sys; print("Python %s" % (sys.version,))'
+  - if [ -n "${TRAVIS_PYTHON_VERSION##*-dev}" -a -n "${TRAVIS_PYTHON_VERSION##2.6*}" ]; then pip install -r test-requirements.txt $( [ -z "${TRAVIS_PYTHON_VERSION##pypy*}" ] || echo " -r test-requirements-cpython.txt" ) ; fi
+  - CFLAGS="-O2 -ggdb -Wall -Wextra $(python -c 'import sys; print("-fno-strict-aliasing" if sys.version_info[0] == 2 else "")')" python setup.py build
+
+before_script: ccache -s
+
+script:
+  - PYTHON_DBG="python$( python -c 'import sys; print("%d.%d" % sys.version_info[:2])' )-dbg"
+  - if $PYTHON_DBG -V >&2; then CFLAGS="-O0 -ggdb" $PYTHON_DBG runtests.py -vv Debugger --backends=$BACKEND; fi
+  - if [ false && "$BACKEND" = "cpp" ]; then pip install pythran; fi  # disabled: needs Pythran > 0.8.1
+  - CFLAGS="-O2 -ggdb -Wall -Wextra $(python -c 'import sys; print("-fno-strict-aliasing" if sys.version_info[0] == 2 else "")')" python setup.py build_ext -i
+  - CFLAGS="-O0 -ggdb -Wall -Wextra" python runtests.py -vv -x Debugger --backends=$BACKEND -j4
+
+matrix:
+  allow_failures:
+    - python: pypy
+    - python: pypy3
+    - python: 3.6-dev
+    - python: 3.7-dev
+  exclude:
+    - python: pypy
+      env: BACKEND=cpp
+    - python: pypy3
+      env: BACKEND=cpp
+
+addons:
+  apt:
+    packages:
+      - gdb
+      - python-dbg
+      - python3-dbg

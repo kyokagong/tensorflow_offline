@@ -1,0 +1,5 @@
+39b5bb539e02aeb55ce9f73584578aa0
+FILE://third_party/sycl/sycl:BUILD.tpl 5a22cb204098f425f50b09b01885cd85
+FILE://third_party/sycl/sycl:LICENSE.text c8ce87c780849f48eca682be399f179c
+FILE://third_party/sycl/sycl:build_defs.bzl.tpl a402590757e066dfe63c285c613badc5
+FILE://third_party/sycl/sycl:platform.bzl.tpl 1139c0dead5ff6bc8dcd7937595fb383
